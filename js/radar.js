@@ -232,6 +232,15 @@ function radar_visualization(config, data) {
             .attr("x2", x).attr("y2", y)
             .style("stroke", config.colors.grid)
             .style("stroke-width", 1);
+
+        let ex = cart_x(C_RING_MAX, (i+1) * r);
+        let ey = cart_y(C_RING_MAX, (i+1) * r);
+
+        grid.append("path")
+            .attr("d", `M ${x} ${y} A ${C_RING_MAX} ${C_RING_MAX} 0 0 0 ${ex} ${ey}`)
+            .style("stroke", (data.options.color_mode != "rings") ? config.rings[i].color : config.colors.grid)
+            .style("fill", "none")
+            .style("stroke-width", (data.options.color_mode != "rings") ? 3 : 1);
     }
 
     // background color. Usage `.attr("filter", "url(#solid)")`
@@ -256,7 +265,7 @@ function radar_visualization(config, data) {
             .attr("r", (i === (valid_ring_ids.length - 1)) ? C_RING_MAX : Math.ceil((i + 1) * C_RING_THICKNESS) + C_INNER_RING_ADDITION)
             .style("fill", "none")
             .style("stroke", config.colors.grid)
-            .style("stroke-width", 1);
+            .style("stroke-width", (i === (valid_ring_ids.length - 1)) ? 0 : 1);
         if (config.print_layout) {
             grid.append("text")
                 .text(data.rings[i].name)
