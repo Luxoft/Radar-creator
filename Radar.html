@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Luxoft Radar Creator">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="Luxoft, Automotive, Technology Radar, Radar, Solutions, Creator">
+
+    <title>Luxoft Radar Creator</title>
+
+    <link rel="stylesheet" href="./css/radar.css">
+</head>
+
+
+<body>
+    <div>
+        <p id="version" style="display: none;">V2.1</p>
+    </div>
+
+    <noscript>
+        <h1>Luxoft Radar Creator</h1>
+
+        <h2 style="color: red">Error: Javascript not available</h2>
+
+        <h3>Please enable Javascript support in your browser to display Mr. Radar.</h3>
+            <p>(If you view this on sharepoint, download the files and open a local copy.)</p>
+
+        <h3>How to create a radar:</h3>
+            <ol>
+                <li>Download "Radar.html" and "data.js"</li>
+                <li>Edit "data.js"</li>
+                <li>Open "Radar.html"</li>
+                <li>Click "Download SVG" button</li>
+                <li>Import the downloaded "Radar.svg" into your favorite app or convert it to a graphic format of your choice.</li>
+            </ol>
+    </noscript>
+
+    <svg id="radarscreen" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewbox="0 0 1450 1000">
+        <defs>
+            <filter x="0" y="0" width="1" height="1" id="solid">
+                <feFlood flood-color="rgb(95, 36, 159, 0.99)" result="bg" />
+                <feMerge>
+                    <feMergeNode in="bg" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <script src="data.js"></script>
+
+    <script src="./js/config.js"></script>
+
+    <script src="./js/radar.js"></script>
+
+    <script>
+        radar_visualization(radar_config, radar_data);
+    </script>
+
+    <div>
+        <a id="download_link" href="" download="Radar.svg" style="display: none;"></a>
+    </div>
+
+    <script src="./js/handling.js"></script>
+
+    <div>
+        <p id="ver"></p>
+    </div>
+
+    <script>document.getElementById("ver").innerHTML = "<small>" + version + "</small>";</script>
+
+</body>
+
+</html>
