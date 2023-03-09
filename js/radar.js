@@ -87,10 +87,10 @@ function radar_visualization(config, data) {
     const C_RING_THICKNESS = Math.ceil((C_RING_MAX - C_INNER_RING_ADDITION) / valid_ring_ids.length);
 
     const C_BLIP_RADIUS = 15;
-    const C_BLIP_CORE = C_BLIP_RADIUS;
+    const C_BLIP_CORE = C_BLIP_RADIUS + 2;
 
     const C_R_MIN_DIST = C_BLIP_RADIUS;
-    const C_PHI_MIN_DIST = 0.15;
+    const C_R_FACTOR = 2.1;
 
     const C_HALF_PI = 0.5 * Math.PI;
     const C_TWO_PI = Math.PI + Math.PI;
@@ -122,15 +122,18 @@ function radar_visualization(config, data) {
 
     function segment(sector, ring) {
 
-        let radius_min = (ring === 0) ? C_RING_MIN : C_RING_THICKNESS * ring + C_INNER_RING_ADDITION + C_RING_MIN;
+        let radius_min = (ring === 0) ? C_BLIP_RADIUS * C_R_FACTOR : C_RING_THICKNESS * ring + C_INNER_RING_ADDITION + C_RING_MIN;
         let radius_max = (ring + 1) * C_RING_THICKNESS + C_INNER_RING_ADDITION - C_RING_MIN;
+        radius_max -= (ring === valid_ring_ids.length - 1) ? C_BLIP_RADIUS / C_R_FACTOR : 0;
 
-        let delta = C_TWO_PI / valid_sector_ids.length;
-        let phi_min = sector * delta;
-        let phi_max = (sector + 1) * delta;
+        const delta_phi = C_TWO_PI / valid_sector_ids.length;
+        const margin_phi = C_BLIP_RADIUS * C_R_FACTOR / radius_max;
+
+        let phi_min = sector * delta_phi + margin_phi;
+        let phi_max = (sector + 1) * delta_phi - margin_phi;
 
         let p_start_r = normal_between(radius_min + C_R_MIN_DIST, radius_max - C_R_MIN_DIST);
-        let p_start_t = random_between(phi_min + C_PHI_MIN_DIST, phi_max - C_PHI_MIN_DIST);
+        let p_start_t = random_between(phi_min, phi_max);
 
         let c_start_x = cart_x(p_start_r, p_start_t);
         let c_start_y = cart_y(p_start_r, p_start_t);
@@ -556,7 +559,7 @@ function radar_visualization(config, data) {
     // distribute blips, while avoiding collisions
     d3.forceSimulation()
         .nodes(valid_entries)
-        .velocityDecay(0.85) // magic number (found by experimentation), was 0.29
-        .force("collision", d3.forceCollide().radius(C_BLIP_CORE).strength(0.65))
+        .velocityDecay(0.55) // magic number (found by experimentation), was 0.29
+        .force("collision", d3.forceCollide().radius(C_BLIP_CORE).strength(1.4))
         .on("tick", ticked);
 }
