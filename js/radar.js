@@ -1,6 +1,6 @@
 /// The MIT License (MIT)
 ///
-/// Copyright (C) 2023 Luxoft GmbH
+/// Copyright (C) 2024 Luxoft GmbH
 ///
 /// Based on https://github.com/zalando/tech-radar Copyright (c) 2017 Zalando SE,
 /// which itself is based on https://github.com/thoughtworks/build-your-own-radar
@@ -26,7 +26,7 @@
 
 function radar_visualization(config, data) {
 
-    const C_MAX_GROUPS = 12;
+    const C_MAX_GROUPS = 18;
     let valid_ring_ids = [];
     let valid_sector_ids = [];
     let valid_entries = [];
@@ -40,6 +40,8 @@ function radar_visualization(config, data) {
         valid_sector_ids.push(data.sectors[i].id);
     }
     //console.log(valid_sector_ids);
+
+    const C_FINE_TUNE_STEPS = (typeof data.options.fine_tune_steps === 'undefined') ? 1 : data.options.fine_tune_steps;
 
     for (let i = 0; i < data.entries.length; i++) {
         if ((valid_ring_ids.indexOf(data.entries[i].ring_id) > -1) &&
@@ -183,7 +185,7 @@ function radar_visualization(config, data) {
         entry.y = entry.seg.start_y;
         let col = config.colors.inactive;
         if (entry.active || config.print_layout) {
-            col = (data.options.color_mode == "rings") ? config.rings[entry.ring].color : config.rings[entry.sector].color;
+            col = (data.options.color_mode == "rings") ? config.rings[Math.floor(entry.ring / C_FINE_TUNE_STEPS)].color : config.rings[entry.sector].color;
         }
         entry.color = col;
     });
@@ -262,17 +264,19 @@ function radar_visualization(config, data) {
 
     // draw rings
     for (let i = 0; i < valid_ring_ids.length; i++) {
-        grid.append("circle")
-            .attr("cx", 0)
-            .attr("cy", 0)
-            .attr("r", (i === (valid_ring_ids.length - 1)) ? C_RING_MAX : Math.ceil((i + 1) * C_RING_THICKNESS) + C_INNER_RING_ADDITION)
-            .style("fill", "none")
-            .style("stroke", config.colors.grid)
-            .style("stroke-width", (i === (valid_ring_ids.length - 1)) ? 0 : 1);
-        if (config.print_layout) {
+        if (!((i + 1) % C_FINE_TUNE_STEPS)) {
+            grid.append("circle")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("r", (i === (valid_ring_ids.length - 1)) ? C_RING_MAX : Math.ceil((i + 1) * C_RING_THICKNESS) + C_INNER_RING_ADDITION)
+                .style("fill", "none")
+                .style("stroke", config.colors.grid)
+                .style("stroke-width", (i === (valid_ring_ids.length - 1)) ? 0 : 1);
+        }
+        if (config.print_layout && !((i + C_FINE_TUNE_STEPS - 1) % C_FINE_TUNE_STEPS)) {
             grid.append("text")
                 .text(data.rings[i].name)
-                .attr("y", -(Math.ceil(C_RING_THICKNESS * (i + 0.42)) + C_INNER_RING_ADDITION))
+                .attr("y", -(Math.ceil(C_RING_THICKNESS * (i + 0.25)) + C_INNER_RING_ADDITION))
                 .attr("text-anchor", "middle")
                 .style("fill", config.colors.grid_text)
                 .style("font-family", config.font_families.sans_serif)
@@ -368,36 +372,56 @@ function radar_visualization(config, data) {
 
             let sector_empty = true;
             for (let ring = 0; ring < valid_ring_ids.length; ring++) {
-                if ((data.options.show_headings_for_empty_sections) || (segmented[sector][ring].length > 0)) {
-                    sector_empty = false;
-                    // Ring name as heading
-                    legend.append("text")
-                        .attr("transform", legend_transform_dynamic(2))
-                        .text((typeof data.rings[ring].name_for_legend === 'undefined') ? data.rings[ring].name : data.rings[ring].name_for_legend)
-                        .style("font-family", config.font_families.sans_serif)
-                        .style("font-size", px(config.font_sizes.legend_subheading))
-                        .style("font-weight", "bold")
-                        .style("fill", config.colors.emphasize)
-                        .style("fill", (data.options.color_mode == "rings") ? config.rings[ring].color : config.colors.emphasize);
 
-                    // Blip names
-                    legend.selectAll(".legend" + sector + ring)
-                        .data(segmented[sector][ring])
-                        .enter()
-                        .append("a")
-                        .attr("href", function (d, i) {
-                            return d.link ? d.link : "#";
-                        })
-                        .append("text")
-                        .attr("transform", function (d, i) { return legend_transform_dynamic(3); })
-                        .attr("class", "legend" + sector + ring)
-                        .attr("id", function (d, i) { return "legendItem" + d.id; })
-                        .text(function (d, i) { return d.id + ". " + d.label; })
-                        .style("font-family", config.font_families.sans_serif)
-                        .style("font-size", px(config.font_sizes.legend_item))
-                        .on("mouseover", function (d) { showBubble(d); highlightLegendItem(d); })
-                        .on("mouseout", function (d) { hideBubble(d); unhighlightLegendItem(d); });
+                // Two cases where headings are needed:
+                // A) We want headings for empty sections
+                let show_heading = (typeof data.options.show_headings_for_empty_sections === 'undefined') ? true : data.options.show_headings_for_empty_sections;
+
+                // B) No tuning or fine tuning: On first ring of the group (or every ring), check if blips exist in one of the rings in the group (or in the ring)
+                if (!show_heading && !(ring % C_FINE_TUNE_STEPS)) {
+                    for (let i = 0; i < C_FINE_TUNE_STEPS; i++) {
+                        if (segmented[sector][ring + i].length > 0) {
+                            show_heading = true;
+                            break;
+                        }
+                    }
                 }
+
+                if (show_heading) {
+                    sector_empty = false;
+
+                    let show_subheadings = (typeof data.options.show_subheadings === 'undefined') ? true : data.options.show_subheadings;
+
+                    // Ring name as heading
+                    if (show_subheadings && !((ring + C_FINE_TUNE_STEPS) % C_FINE_TUNE_STEPS)) {
+                        legend.append("text")
+                            .attr("transform", legend_transform_dynamic(2))
+                            .text((typeof data.rings[ring].name_for_legend === 'undefined') ? data.rings[ring].name : data.rings[ring].name_for_legend)
+                            .style("font-family", config.font_families.sans_serif)
+                            .style("font-size", px(config.font_sizes.legend_subheading))
+                            .style("font-weight", "bold")
+                            .style("fill", config.colors.emphasize)
+                            .style("fill", (data.options.color_mode == "rings") ? config.rings[Math.floor(ring / C_FINE_TUNE_STEPS)].color : config.colors.emphasize);
+                    }
+                }
+
+                // Blip names
+                legend.selectAll(".legend" + sector + ring)
+                    .data(segmented[sector][ring])
+                    .enter()
+                    .append("a")
+                    .attr("href", function (d, i) {
+                        return d.link ? d.link : "#";
+                    })
+                    .append("text")
+                    .attr("transform", function (d, i) { return legend_transform_dynamic(3); })
+                    .attr("class", "legend" + sector + ring)
+                    .attr("id", function (d, i) { return "legendItem" + d.id; })
+                    .text(function (d, i) { return d.id + ". " + d.label; })
+                    .style("font-family", config.font_families.sans_serif)
+                    .style("font-size", px(config.font_sizes.legend_item))
+                    .on("mouseover", function (d) { showBubble(d); highlightLegendItem(d); })
+                    .on("mouseout", function (d) { hideBubble(d); unhighlightLegendItem(d); });
             }
 
             if (sector_empty) {
@@ -512,6 +536,8 @@ function radar_visualization(config, data) {
                 .attr("xlink:href", d.link);
         }
 
+        let blip_opacity = (d.moved == -9) ? data.options.stale_opacity : 1.0;
+
         // blip shape
         switch (d.moved) {
             case 1:
@@ -536,7 +562,8 @@ function radar_visualization(config, data) {
             default:
                 blip.append("circle")
                     .attr("r", C_BLIP_RADIUS)
-                    .attr("fill", d.color);
+                    .attr("fill", d.color)
+                    .attr("fill-opacity", blip_opacity);
                 break;
         }
 

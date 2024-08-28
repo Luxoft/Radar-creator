@@ -67,14 +67,16 @@ radar_data = {
        { sector_id: "E", ring_id: "3", label: "First E3", moved: 0},
        { sector_id: "E", ring_id: "3", label: "Second E3", moved: 0},
        { sector_id: "F", ring_id: "now", label: "Innermost of F", moved: 0},
-       { sector_id: "F", ring_id: "2", label: "F2 blip", moved: 0},
-       { sector_id: "F", ring_id: "3", label: "F3 blip", moved: 0},
+       { sector_id: "F", ring_id: "2", label: "F2 blip", moved: -9},
+       { sector_id: "F", ring_id: "3", label: "F3 blip", moved: -9},
        { sector_id: "F", ring_id: "horizon", label: "F on the horizon", moved: 0},
   ],
 
   options: {
     color_mode: "rings", //rings or sectors,
     show_headings_for_empty_sections: false,
-    inner_ring_addition: 0.1,
+    show_subheadings: false,
+    inner_ring_addition: 0.11,
+    stale_opacity: 0.2,
   },
 };

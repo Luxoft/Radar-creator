@@ -19,9 +19,16 @@ radar_config = {
         { color: "#6056E9"}, // Cobalt Blue
         { color: "#969696"}, // Medium Gray
         { color: "#006975"}, // Dark Teal
-        { color: "#330072"}, // Dark Purple
         { color: "#F9F048"}, // Yellow
-        { color: "#8B0000"}  // Dark Red
+        { color: "#330072"}, // Dark Purple
+        { color: "#8B0000"}, // Dark Red
+                // additional colors
+        { color: "#FFD399"}, // Orange 80
+        { color: "#A6FFFB"}, // Bright Teal 80
+        { color: "#B2E9FF"}, // Bright Blue 80
+        { color: "#EBD9FF"}, // Bright Purple 80
+        { color: "#99CAFF"}, // Navy 80
+        { color: "#FFFBB2"}, // Yellow 80
       ],
 
     colors: {

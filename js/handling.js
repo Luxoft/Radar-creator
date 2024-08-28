@@ -31,7 +31,7 @@ button_snapshot.id = "snapshot";
 button_snapshot.addEventListener("click", () => {
     if (svg) {
         let now = (new Date()).toString();
-        svg_text = `<!--Created by Luxoft Radar Creator ${version} on ${now}-->\n<svg id=\"radarscreen\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 1450 1000\" width=\"1450\" height=\"1000\" style=\"background-color: rgb(255, 255, 255);\"> ${svg.innerHTML} </svg>`;
+        svg_text = `<!--Created by Luxoft Radar Creator ${version} on ${now}-->\n<svg id=\"radarscreen\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 1450 1200\" width=\"1450\" height=\"1000\" style=\"background-color: rgb(255, 255, 255);\"> ${svg.innerHTML} </svg>`;
         if (url != null) {
             window.URL.revokeObjectURL(url);
             url = null;
