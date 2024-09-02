@@ -52,7 +52,8 @@ function radar_visualization(config, data) {
                 "label": data.entries[i].label,
                 "moved": data.entries[i].moved,
                 "link": data.entries[i].link,
-                "active": (typeof data.entries[i].active === 'undefined') ? true : data.entries[i].active
+                "active": (typeof data.entries[i].active === 'undefined') ? true : data.entries[i].active,
+                "comment": data.entries[i].comment
             };
             valid_entries.push(element);
         }
@@ -476,9 +477,9 @@ function radar_visualization(config, data) {
         if (d.active || config.print_layout) {
 
             //let dbg_text =`[(${d.id}) '${d.label}'] S ${d.sector} R ${d.ring}, x ${d.x} y ${d.y} r ${Math.floor(d.r)} t ${Math.round(100* d.t)/100}`;
-
+            let hint = (typeof d.comment === 'undefined') ? "" : " " + d.comment;
             let tooltip = d3.select("#bubble text")
-                .text(d.label)
+                .text(d.label + hint)
                 //.text(dbg_text)
                 .style("font-size", px(config.font_sizes.bubble));
             let bbox = tooltip.node().getBBox();

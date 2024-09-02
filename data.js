@@ -56,8 +56,8 @@ radar_data = {
 //
   entries: [
 
-       { sector_id: "A", ring_id: "now", label: "Innermost of A", moved: 0},
-       { sector_id: "A", ring_id: "2", label: "A on the second ring", moved: 0},
+       { sector_id: "A", ring_id: "now", label: "Innermost of A with a comment", moved: 0, comment: "| The comment"},
+       { sector_id: "A", ring_id: "2", label: "A on the second ring", moved: 0, comment: "with another comment"},
        { sector_id: "B", ring_id: "2", label: "B on the second ring", moved: 0},
        { sector_id: "B", ring_id: "2", label: "B on 2 moved in", moved: 1},
        { sector_id: "C", ring_id: "2", label: "C on 2 moved out", moved: -1},
